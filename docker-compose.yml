@@ -1,0 +1,14 @@
+version: "3.3"
+services:
+  prod:
+    build: ./prod-api/
+    ports:
+      - "5000:5000"
+  trainer:
+    build: ./trainer/
+    ports:
+      - "5001:5000"
+  data:
+    build: ./data-api/
+    ports:
+      - "5002:5000"
