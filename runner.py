@@ -35,26 +35,4 @@ for iteration, start_step in enumerate(range(0, 7600, 400)):
   if patience_status >= DEPLOY_PATIENCE:
     print('DEPLOYMENT')  
 
-sys.exit('Done')
-data = sim.signals_case_generation(n_transition_steps=500)
-sequenced = prep.rolling_window(data, 100)
-X, y = prep.seq2inputs(sequenced)
-X_train, X_val, X_test, y_train, y_val, y_test = prep.split_dataset(X, y, split_size=100, verbose=True)
-X_train = vstack((X_train, X_val))
-y_train = hstack((y_train, y_val))
-
-candidate = load_model('src/models/model_one')
-candidate.compile(
-  Adam(learning_rate=0.0001),
-  loss= MeanSquaredError(),  
-  metrics=['mse']  
-)
-
-candidate.fit(X_train, y_train, epochs=10)
-
-rmse = round(candidate.evaluate(X_test, y_test, verbose=0)[0],2)
-
-
-
-
-print("debug")
+print('done')

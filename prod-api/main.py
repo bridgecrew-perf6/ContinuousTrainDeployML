@@ -45,12 +45,13 @@ async def data_server_health():
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
     try:
         with destination.open("wb") as buffer:
-            shutil.copyfileobj(upload_file.file, buffer)
+            copyfileobj(upload_file.file, buffer)
     finally:
         upload_file.file.close()
 
 @app.post("/evaluate")
 async def evaluate_model(data: UploadFile):
+    
     filepath = Path('data_arrays.pkl')
     print(f'entered evaluate model. File type: {type(data)}')
     with filepath.open('wb') as buffer:
@@ -60,7 +61,5 @@ async def evaluate_model(data: UploadFile):
         data_arrays = pickle.load(f)
         
     print(type(data_arrays))
-    print(f'message arrived')
     prod_model = load_model('models/model_one')
-    print('loaded prod_model')
     return JSONResponse({'rmse_prod': round(prod_model.evaluate(*data_arrays, verbose=0)[0],2)})
