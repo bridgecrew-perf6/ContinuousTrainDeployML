@@ -2,16 +2,17 @@ import logging
 import requests
 import utils.simulation_utils as sim
 import utils.preprocessing as prep
+from json import dumps as json_dumps
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from logging.config import dictConfig
 from log_config import log_config
-from numpy import frombuffer
-
-
 
 
 dictConfig(log_config)
 logger = logging.getLogger("Trainer")
+
+# TODO config file
+DATA_URL = 'http://data:5000/'
 
 app = FastAPI()
 
@@ -31,11 +32,9 @@ async def listen(first:  str = Form(...), second: str = Form(...)):
 
 @app.get("/train")
 async def train(initial_step: int):
-    # initial_step_param = {'initial_step': 0}
-    url = 'http://data:5000/timesteps'
-    print(f'Initial step: {initial_step}')
-    initial_step_param = {'initial_step': initial_step}
-    r = requests.get(url=url, params=initial_step_param)
-    data = frombuffer(r.content)
-    return {'data_shape': data.shape}
+    data = prep.get_data(initial_step, data_url=DATA_URL)
+    data = prep.trainable_data(data)
+    rmse_candidate, rmse_prod = prep.train_models(*data)    
+    return json_dumps({'rmse_candidate': rmse_candidate, 'rmse_prod': rmse_prod})
+
 

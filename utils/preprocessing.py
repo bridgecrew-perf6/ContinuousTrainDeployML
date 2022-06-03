@@ -1,7 +1,18 @@
+import requests
+import pickle
+import io
 from numpy.lib.stride_tricks import as_strided
 from numpy import convolve, ones, array
-from typing import Tuple
+from typing import Tuple, Union
+from numpy import frombuffer, array, vstack, hstack
+from tensorflow.keras.models import load_model
+from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import Model
 
+
+# TODO confid file
+PROD_URL = 'http://prod:5000/'
 
 def rolling_window(x, window):
     shape = (x.size - window + 1, window)
@@ -20,11 +31,16 @@ def seq2inputs(sequence: array, time_step_to_predict: int = 1) -> Tuple:
     return X, y
 
 
-def split_dataset(X: array, y: array, split_size: float=0.8, verbose: bool=False) -> Tuple:
-    n_train_total = int(len(X) * split_size)
-    n_train = int(n_train_total * split_size)
+def split_dataset(X: array, y: array, split_size: Union[int, float]=0.8, verbose: bool=False) -> Tuple:
+    if isinstance(split_size, float):            
+        n_train_total = int(len(X) * split_size)
+        n_train = int(n_train_total * split_size)
+    else:
+        n_train_total = len(X) - split_size
+        n_train = int(n_train_total * 0.8)  
+    
     if verbose:
-        print(f'n_train: {n_train} - n_train_pre: {n_train_total}')
+        print(f'n_train: {n_train} - val: {n_train_total - n_train}')
 
     X_train = X[:n_train]
     X_val = X[n_train:n_train_total]
@@ -33,3 +49,59 @@ def split_dataset(X: array, y: array, split_size: float=0.8, verbose: bool=False
     y_val = y[n_train:n_train_total]
     y_test = y[n_train_total: ]
     return X_train, X_val, X_test, y_train, y_val, y_test
+
+
+def get_data(initial_step: int, data_url: str) -> array:
+    url = data_url + 'timesteps' 
+    print(f'Initial step: {initial_step}')
+    initial_step_param = {'initial_step': initial_step}
+    r = requests.get(url=url, params=initial_step_param)
+    return frombuffer(r.content)
+
+
+def trainable_data(data: array) -> Tuple:
+    sequenced = rolling_window(data, 100)
+    X, y = seq2inputs(sequenced)
+    X_train, X_val, X_test, y_train, y_val, y_test = split_dataset(X, y, split_size=100, verbose=True)
+    X_train = vstack((X_train, X_val))
+    y_train = hstack((y_train, y_val))
+
+    return X_train, y_train, X_test, y_test
+
+
+def train_models(X_train: array, y_train: array, X_test: array, y_test: array) -> float:
+    data_arrays = [X_test,  y_test]
+    candidate = load_model('models/model_one')
+    candidate.compile(Adam(learning_rate=0.0001),loss= MeanSquaredError(), metrics=['mse'])
+    candidate.fit(X_train, y_train, epochs=5)
+    candidate.save('models/candidate')
+    print(1)
+
+    # data_s = pickle.dumps(data_arrays)
+    print(2)
+    rmse_candidate = model_evaluation('candidate', X_test, y_test)
+    # prod = load_model('models/model_one')
+    # rmse_prod = round(prod.evaluate(X_test, y_test, verbose=0)[0],2)
+    print(3)
+    # frame_file = io.BytesIO(frame)
+    
+    with open('data_arrays.pkl', 'wb') as f:
+        pickle.dump(data_arrays, f)
+
+    response = requests.post(PROD_URL+'evaluate',  files={'data': open('data_arrays.pkl',"rb")})
+
+    # url = "http://127.0.0.1:8000/file"
+    # files = {'my_file': open('README.md', 'rb')}
+    # res = requests.post(url, files=files)
+    response = response.json()
+    print(response)
+    rmse_prod = response['rmse_prod']
+    # rmse_prod = requests.post(PROD_URL+'evaluate', files=data_s) 
+    print(4)
+
+    return rmse_candidate, rmse_prod
+
+
+def model_evaluation(model_name: str, X_test: array, y_test: array, verbose=0) -> float:
+    candidate = load_model(f'models/{model_name}')
+    return round(candidate.evaluate(X_test, y_test, verbose=0)[0],2)
