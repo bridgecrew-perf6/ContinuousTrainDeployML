@@ -1,6 +1,6 @@
 import requests
 import pickle
-import io
+import utils.data_interactions as data
 from numpy.lib.stride_tricks import as_strided
 from numpy import convolve, ones, array
 from typing import Tuple, Union
@@ -8,7 +8,7 @@ from numpy import frombuffer, array, vstack, hstack
 from tensorflow.keras.models import load_model
 from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import Model
+
 
 
 # TODO config file

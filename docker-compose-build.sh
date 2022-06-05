@@ -6,9 +6,8 @@ cp -r ./utils ./trainer-api/
 cp -r ./utils ./data-api/
 
 # copy model in the directory. TODO Pull from registry
-cp -r ./src/models ./trainer-api/models
-mv ./trainer-api/models/production.h5 ./trainer-api/models/candidate.h5
-cp -r ./src/models ./prod-api/
+cp -r ./src/gcp_config ./trainer-api/
+cp -r ./src/gcp_config ./prod-api/
 
 #copy requirements.txt into the single api folders (adapt to single api req?)
 cp requirements.txt ./prod-api/
@@ -23,8 +22,8 @@ rm -r ./trainer-api/utils/
 rm -r ./prod-api/utils/
 
 # delete models directory
-rm -r ./trainer-api/models
-rm -r ./prod-api/models
+rm -r ./trainer-api/gcp_config
+rm -r ./prod-api/gcp_config
 
 # delete copied files
 rm -r ./data-api/requirements.txt

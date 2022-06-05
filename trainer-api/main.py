@@ -1,11 +1,13 @@
+from ctypes import Union
 import logging
 import requests
-import utils.simulation_utils as sim
 import utils.preprocessing as prep
+import utils.data_interactions as data
 from json import dumps as json_dumps
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi import FastAPI, Form
 from logging.config import dictConfig
 from log_config import log_config
+import os
 
 
 dictConfig(log_config)
@@ -13,8 +15,15 @@ logger = logging.getLogger("Trainer")
 
 # TODO config file
 DATA_URL = 'http://data:5000/'
+BUCKET = 'project-capstone-fbf'
+MODEL_FOLDER = 'models/'
+GCP_MODEL_PATH =  MODEL_FOLDER + 'production.h5'
+LOCAL_MODEL_PATH = MODEL_FOLDER + 'candidate.h5'
 
 app = FastAPI()
+client = data.gcp_client()
+data.download_blob(client, BUCKET, GCP_MODEL_PATH, LOCAL_MODEL_PATH)
+print(os.listdir('models'))
 
 
 @app.get("/health")
@@ -36,5 +45,13 @@ async def train(initial_step: int):
     data = prep.trainable_data(data)
     rmse_candidate, rmse_prod = prep.train_models(*data)
     return json_dumps({'rmse_candidate': rmse_candidate, 'rmse_prod': rmse_prod})
+    
 
+@app.get("/deploy-candidate")
+async def deploy(name: Union[str, None]):
+    if name is not None:
+        GCP_MODEL_PATH = MODEL_FOLDER + name
+    client = data.gcp_client()
+    data.upload_blob(client, BUCKET, LOCAL_MODEL_PATH, GCP_MODEL_PATH)
+    return f'Deployed to {GCP_MODEL_PATH}'
 

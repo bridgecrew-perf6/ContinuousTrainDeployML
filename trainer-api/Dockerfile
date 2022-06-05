@@ -5,8 +5,8 @@ RUN echo "this is the port $PORT"
 EXPOSE 5000
 
 WORKDIR /usr/src/app
-
 COPY . .
+RUN mkdir models
 
 RUN pip install --no-cache-dir --requirement requirements.txt
 

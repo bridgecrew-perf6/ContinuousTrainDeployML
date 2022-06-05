@@ -7,7 +7,7 @@
 */.DS_Store/*
 .DS_Store
 src/gcp_config/.DS_Store
-src/gcp_config/*
+/src/gcp_config/*
 /gcp_config/
 
 # Byte-compiled / optimized / DLL files

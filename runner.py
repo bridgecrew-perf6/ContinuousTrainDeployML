@@ -1,29 +1,23 @@
 
-# signal = sim.signals_case_generation(n_transition_steps=500)
-# print(f'Shape of signal {signal}')
-import json
 import requests
-import sys
-from numpy import frombuffer, vstack, hstack
 from json import loads as json_loads
-from json import load as json_load 
-import utils.preprocessing as prep
-import utils.simulation_utils as sim
-from tensorflow.keras.models import load_model
-from tensorflow.keras.losses import MeanSquaredError
-from tensorflow.keras.optimizers import Adam
+
+
 
 
 # sys.exit('done for now')
-url = 'http://localhost:5001/train'
+server_url = 'http://localhost:5001/' 
 # url = 'http://34.150.196.128:5001/train'
+train_url = server_url + 'train'
+deploy_url = server_url + 'deploy-candidate'
+
 DEPLOY_PATIENCE = 4
 patience_status = 0
 
-for iteration, start_step in enumerate(range(0, 5000, 400)):
+for iteration, start_step in enumerate(range(0, 7000, 400)):
 
   initial_step_param = {'initial_step': start_step}  
-  response = requests.get(url=url , params=initial_step_param)
+  response = requests.get(url=train_url , params=initial_step_param)
   results = json_loads(response.json()) if response and response.status_code == 200 else None
   # results = json_loads(response.text)
   rmse_candidate, rmse_prod = results.values()  
@@ -34,6 +28,7 @@ for iteration, start_step in enumerate(range(0, 5000, 400)):
     patience_status = 0
 
   if patience_status >= DEPLOY_PATIENCE:
-    print('DEPLOYMENT')  
+    print('DEPLOYMENT')
+    response = requests.get(url=deploy_url, params=initial_step_param)
 
 print('done')

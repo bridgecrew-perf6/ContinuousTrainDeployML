@@ -1,7 +1,5 @@
 from google.cloud.storage import Client
 
-
-
 def upload_blob(storage_client: Client, bucket_name: str, source_file_name: str, destination_blob_name: str):
     """Uploads a file to the google storage bucket.""" 
     
@@ -31,10 +29,10 @@ if __name__ == "__main__":
     credentials = 'src/gcp_config/mlops-3-1ccb1337a897.json'
     client = Client.from_service_account_json(json_credentials_path=credentials)
 
-    # upload_blob(client, bucket, source_file_path, destination)
+    upload_blob(client, bucket, source_file_path, destination)
 
-    gcp_origin = 'models/papers cariad'
-    local_destination = 'deprecated/papers_cariad.txt'
+    #gcp_origin = 'models/papers cariad'
+    local_destination = 'deprecated/papers_cariad.py'
 
     download_blob(client, bucket, destination, local_destination)
 
