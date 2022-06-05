@@ -40,11 +40,11 @@ def trainable_data(data: array) -> Tuple:
 
 
 def train_model(X_train: array, y_train: array, X_test: array, y_test: array) -> float:
-    candidate = load_model('src/models/model_one')
+    candidate = load_model('src/models/candidate.h5')
     candidate.compile(Adam(learning_rate=0.0001),loss= MeanSquaredError(), metrics=['mse'])
     candidate.fit(X_train, y_train, epochs=5)
     rmse_candidate = round(candidate.evaluate(X_test, y_test, verbose=0)[0],2)
-    prod = load_model('src/models/model_one')
+    prod = load_model('src/models/candidate.h5')
     rmse_prod = round(prod.evaluate(X_test, y_test, verbose=0)[0],2)
 
     return rmse_candidate, rmse_prod
