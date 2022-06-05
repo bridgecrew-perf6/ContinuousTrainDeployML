@@ -8,7 +8,7 @@
 .DS_Store
 src/gcp_config/.DS_Store
 src/gcp_config/*
-
+/gcp_config/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
