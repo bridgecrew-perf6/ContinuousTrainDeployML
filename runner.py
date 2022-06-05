@@ -15,11 +15,12 @@ from tensorflow.keras.optimizers import Adam
 
 
 # sys.exit('done for now')
-url = 'http://localhost:5001/train'
+# url = 'http://localhost:5001/train'
+url = 'http://34.150.196.128:5001/train'
 DEPLOY_PATIENCE = 4
 patience_status = 0
 
-for iteration, start_step in enumerate(range(0, 7600, 400)):
+for iteration, start_step in enumerate(range(0, 2600, 400)):
 
   initial_step_param = {'initial_step': start_step}  
   response = requests.get(url=url , params=initial_step_param)

@@ -74,9 +74,9 @@ def train_models(X_train: array, y_train: array, X_test: array, y_test: array) -
     candidate = load_model('models/model_one')
     candidate.compile(Adam(learning_rate=0.0001),loss= MeanSquaredError(), metrics=['mse'])
     candidate.fit(X_train, y_train, epochs=5)
-    candidate.save('models/candidate')
+    candidate.save('models/candidate.h5')
 
-    rmse_candidate = model_evaluation('candidate', *data_arrays)
+    rmse_candidate = model_evaluation('candidate.h5', *data_arrays)
     
     with open('data_arrays.pkl', 'wb') as f:
         pickle.dump(data_arrays, f)

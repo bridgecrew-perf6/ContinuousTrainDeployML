@@ -34,7 +34,7 @@ async def listen(first:  str = Form(...), second: str = Form(...)):
 async def train(initial_step: int):
     data = prep.get_data(initial_step, data_url=DATA_URL)
     data = prep.trainable_data(data)
-    rmse_candidate, rmse_prod = prep.train_models(*data)    
+    rmse_candidate, rmse_prod = prep.train_models(*data)
     return json_dumps({'rmse_candidate': rmse_candidate, 'rmse_prod': rmse_prod})
 
 

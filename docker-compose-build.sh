@@ -6,7 +6,7 @@ cp -r ./utils ./trainer-api/
 cp -r ./utils ./data-api/
 
 # copy model in the directory. TODO Pull from registry
-cp -r ./src/models ./trainer-api/
+cp -r ./src/models/production.h5 ./trainer-api/models/candidate.h5
 cp -r ./src/models ./prod-api/
 
 #copy requirements.txt into the single api folders (adapt to single api req?)

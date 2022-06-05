@@ -61,5 +61,5 @@ async def evaluate_model(data: UploadFile):
         data_arrays = pickle.load(f)
         
     print(type(data_arrays))
-    prod_model = load_model('models/model_one')
+    prod_model = load_model('models/production.h5')
     return JSONResponse({'rmse_prod': round(prod_model.evaluate(*data_arrays, verbose=0)[0],2)})
