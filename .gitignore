@@ -4,6 +4,10 @@
 /reference/
 /backup/
 */.DS_Store
+*/.DS_Store/*
+.DS_Store
+src/gcp_config/.DS_Store
+
 
 
 # Byte-compiled / optimized / DLL files
