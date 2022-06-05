@@ -11,7 +11,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Model
 
 
-# TODO confid file
+# TODO config file
 PROD_URL = 'http://prod:5000/'
 
 def rolling_window(x, window):
@@ -48,6 +48,7 @@ def split_dataset(X: array, y: array, split_size: Union[int, float]=0.8, verbose
     y_train = y[:n_train]
     y_val = y[n_train:n_train_total]
     y_test = y[n_train_total: ]
+
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 

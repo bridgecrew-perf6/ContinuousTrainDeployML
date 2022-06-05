@@ -5,7 +5,6 @@ from logging.config import dictConfig
 from log_config import log_config
 
 
-
 dictConfig(log_config)
 logger = logging.getLogger("Trainer")
 
@@ -33,7 +32,4 @@ async def special_health(first:  str = Form(...), second: str = Form(...),):
     print(f'logger> Trainer: Received message from {second}')
     reply = f'{round(float(first)*10/2,0)}'
 
-    return {
-        # "name": my_file.filename,
-        "Number": reply,
-    }
+    return {"Number": reply}

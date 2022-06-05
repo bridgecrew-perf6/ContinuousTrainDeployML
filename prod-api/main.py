@@ -14,7 +14,6 @@ from tensorflow.keras.models import load_model
 from typing import Dict
 
 
-
 dictConfig(log_config)
 logger = logging.getLogger("production")
 DATA_URL = 'http://data:5000/listen'
@@ -48,6 +47,7 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
             copyfileobj(upload_file.file, buffer)
     finally:
         upload_file.file.close()
+
 
 @app.post("/evaluate")
 async def evaluate_model(data: UploadFile):
