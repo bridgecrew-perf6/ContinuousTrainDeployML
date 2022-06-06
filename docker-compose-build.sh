@@ -14,7 +14,7 @@ cp requirements.txt ./prod-api/
 cp requirements.txt ./trainer-api/
 cp requirements.txt ./data-api/
 
-sudo docker-compose build --parallel
+sudo docker-compose build
 
 # delete all copied files
 rm -r ./data-api/utils/

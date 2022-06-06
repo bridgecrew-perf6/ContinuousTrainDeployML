@@ -1,12 +1,14 @@
-from ctypes import Union
 import logging
-import requests
 import utils.preprocessing as prep
-import utils.data_interactions as data
+import utils.metadata as meta
+from typing import Union
+from time import time
 from json import dumps as json_dumps
 from fastapi import FastAPI, Form
 from logging.config import dictConfig
 from log_config import log_config
+
+# TODO DELETE import os when ready
 import os
 
 
@@ -21,8 +23,7 @@ GCP_MODEL_PATH =  MODEL_FOLDER + 'production.h5'
 LOCAL_MODEL_PATH = MODEL_FOLDER + 'candidate.h5'
 
 app = FastAPI()
-client = data.gcp_client()
-data.download_blob(client, BUCKET, GCP_MODEL_PATH, LOCAL_MODEL_PATH)
+meta.download_blob(BUCKET, GCP_MODEL_PATH, LOCAL_MODEL_PATH)
 print(os.listdir('models'))
 
 
@@ -49,9 +50,15 @@ async def train(initial_step: int):
 
 @app.get("/deploy-candidate")
 async def deploy(name: Union[str, None]):
+
+    timestamp = time.strftime('%d-%m-%Y_%H%M', time.localtime())
+    new_model_name = f'{GCP_MODEL_PATH}_{timestamp}'
+
+    meta.move_blob(BUCKET, GCP_MODEL_PATH, new_model_name)
+
     if name is not None:
         GCP_MODEL_PATH = MODEL_FOLDER + name
-    client = data.gcp_client()
-    data.upload_blob(client, BUCKET, LOCAL_MODEL_PATH, GCP_MODEL_PATH)
+        
+    meta.upload_blob(BUCKET, LOCAL_MODEL_PATH, GCP_MODEL_PATH)
     return f'Deployed to {GCP_MODEL_PATH}'
 

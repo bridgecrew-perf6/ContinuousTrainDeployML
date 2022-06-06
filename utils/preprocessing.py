@@ -1,6 +1,5 @@
 import requests
 import pickle
-import utils.data_interactions as data
 from numpy.lib.stride_tricks import as_strided
 from numpy import convolve, ones, array
 from typing import Tuple, Union
@@ -13,6 +12,7 @@ from tensorflow.keras.optimizers import Adam
 
 # TODO config file
 PROD_URL = 'http://prod:5000/'
+
 
 def rolling_window(x, window):
     shape = (x.size - window + 1, window)
