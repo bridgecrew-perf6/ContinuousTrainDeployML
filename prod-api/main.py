@@ -8,10 +8,11 @@ from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
 from logging.config import dictConfig
 from log_config import log_config
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from tensorflow.keras.models import load_model
 
 # TODO delete import os and listdir
-import os
 
 
 dictConfig(log_config)
@@ -38,14 +39,12 @@ def health():
 async def evaluate_model(data: UploadFile):
     
     filepath = Path('data_arrays.pkl')
-    print(f'entered evaluate model. File type: {type(data)}')
     with filepath.open('wb') as buffer:
         copyfileobj(data.file, buffer)
 
     with open(filepath, 'rb') as f:
         data_arrays = pickle.load(f)
         
-    print(type(data_arrays))
     prod_model = load_model('models/production.h5')
     return JSONResponse({'rmse_prod': round(prod_model.evaluate(*data_arrays, verbose=0)[0],2)})
 

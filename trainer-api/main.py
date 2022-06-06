@@ -1,8 +1,8 @@
 import logging
 import utils.preprocessing as prep
 import utils.metadata as meta
+import time
 from typing import Union
-from time import time
 from json import dumps as json_dumps
 from fastapi import FastAPI, Form
 from logging.config import dictConfig
@@ -19,7 +19,9 @@ logger = logging.getLogger("Trainer")
 DATA_URL = 'http://data:5000/'
 BUCKET = 'project-capstone-fbf'
 MODEL_FOLDER = 'models/'
-GCP_MODEL_PATH =  MODEL_FOLDER + 'production.h5'
+MODEL_STEMMED = 'production'
+MODEL_EXTENSION = '.h5'
+GCP_MODEL_PATH =  MODEL_FOLDER + MODEL_STEMMED + MODEL_EXTENSION
 LOCAL_MODEL_PATH = MODEL_FOLDER + 'candidate.h5'
 
 app = FastAPI()
@@ -49,15 +51,16 @@ async def train(initial_step: int):
     
 
 @app.get("/deploy-candidate")
-async def deploy(name: Union[str, None]):
+async def deploy(): # name: Union[str, None]
 
     timestamp = time.strftime('%d-%m-%Y_%H%M', time.localtime())
-    new_model_name = f'{GCP_MODEL_PATH}_{timestamp}'
+    new_model_name = f'{MODEL_FOLDER}{MODEL_STEMMED}_{timestamp}{MODEL_EXTENSION}'
+    print(f'BUCKET: {BUCKET} - GCP_MODEL_PATH: {GCP_MODEL_PATH} - new_model_name: {new_model_name}')    
 
     meta.move_blob(BUCKET, GCP_MODEL_PATH, new_model_name)
 
-    if name is not None:
-        GCP_MODEL_PATH = MODEL_FOLDER + name
+    # if name is not None:
+        # GCP_MODEL_PATH = MODEL_FOLDER + name +  # MODEL_EXTENSION
         
     meta.upload_blob(BUCKET, LOCAL_MODEL_PATH, GCP_MODEL_PATH)
     return f'Deployed to {GCP_MODEL_PATH}'

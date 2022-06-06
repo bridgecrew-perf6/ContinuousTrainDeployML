@@ -33,7 +33,6 @@ def stack_data(degree_data: Union[array, Tuple], n_iters: int, to_radians: bool 
     if to_radians:
         data = to_radian(data)
 
-    print(f'Shape of data: {data.shape}')
     return data
 
 
@@ -116,7 +115,5 @@ def signals_case_generation(n_transition_steps: int = 500, verbose: bool = False
     concat_signal = concatenate((s_mixed[-5000:], transition_signal, s_production[n_transition_steps:]))
     if verbose: 
         print(f'Signal shape: {concat_signal.shape}')
-    
-    print('centinel')
 
     return concat_signal

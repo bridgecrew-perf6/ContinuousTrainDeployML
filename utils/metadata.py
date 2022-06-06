@@ -15,7 +15,7 @@ def upload_blob(bucket_name: str, source_file_name: str, destination_blob_name: 
  
     blob.upload_from_filename(source_file_name)
  
-    print(f"{source_file_name} uploaded to Storage Bucket with Bob name {destination_blob_name} successfully.")
+    print(f"{source_file_name} uploaded to Storage Bucket with blob name {destination_blob_name} successfully.")
 
 
 def download_blob(bucket_name: str, source_blob_name: str, destination_file_name: str):
@@ -29,7 +29,7 @@ def download_blob(bucket_name: str, source_blob_name: str, destination_file_name
     print(f"{source_blob_name} downloaded to file path {destination_file_name} successfully")
 
  
-def move_blob(bucket_name: str, blob_name: str, new_blob_name: str, new_bucket_name: Union[str, None]):
+def move_blob(bucket_name: str, blob_name: str, new_blob_name: str, new_bucket_name: Union[str, None]=None):
     """
     Function for moving files between directories or buckets . it will use GCP's copy 
     function then delete the blob from the old location.
@@ -57,4 +57,4 @@ def move_blob(bucket_name: str, blob_name: str, new_blob_name: str, new_bucket_n
     # delete in old destination
     source_blob.delete()
     
-    print(f'File moved from {source_blob} to {new_blob_name}')
+    print(f'File moved from {blob_name} to {new_blob_name}')

@@ -21,7 +21,7 @@ async def health_root():
 
 @app.get("/timesteps")
 async def data(initial_step: int):
-    data = sim.timesteps_generator(signal, start_timestep=initial_step, n_timesteps=4100)
+    data = sim.timesteps_generator(signal, start_timestep=initial_step, n_timesteps=4200) # train:4000 predict: 100 sequence_rolling:100
     data_bytes = data.tobytes() # numpy array to bytes object
     headers = {'Content-Disposition': 'inline; filename="timesteps"'}
     return Response(data_bytes, headers=headers, media_type='image/png') # TODO media-type 
