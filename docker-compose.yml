@@ -4,11 +4,21 @@ services:
     build: ./prod-api/
     ports:
       - "5000:5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    container_name: production
   trainer:
     build: ./trainer-api/
     ports:
       - "5001:5000"
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    container_name: trainer
   data:
     build: ./data-api/
     ports:
       - "5002:5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    container_name: data

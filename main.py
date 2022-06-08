@@ -1,26 +1,37 @@
 
 import requests
 from json import loads as json_loads
+import utils.metadata as meta
+from time import sleep
 
+server = 'http://localhost'
+# server = 'http://34.150.196.128'
 
-server_url = 'http://localhost:5001/' 
-# url = 'http://34.150.196.128:5001/train'
-train_url = server_url + 'train'
-deploy_url = server_url + 'deploy-candidate'
+trainer_url = f'{server}:5001/' 
+train_url = trainer_url + 'train'
+deploy_url = trainer_url + 'deploy-candidate'
+production_url = f'{server}:5000/'
+
 train_length = 4000
 evaluate_length = 100
 
-DEPLOY_THRESHOLD = .5
-DEPLOY_PATIENCE = 4
+DEPLOY_THRESHOLD = .1
+DEPLOY_PATIENCE = 1
 
 patience_status = 0
 
-for iteration, start_step in enumerate(range(0, 7000, 400)):
+for iteration, start_step in enumerate(range(500, 10000, 50)):
+
+  prod_health = requests.get(production_url+'health')
+  if prod_health.status_code != 200:
+    print('Production server down')
+    sleep(10)
+    continue
 
   initial_step_param = {'initial_step': start_step}  
   response = requests.get(url=train_url , params=initial_step_param)
   results = json_loads(response.json()) if response and response.status_code == 200 else None
-  # results = json_loads(response.text)
+
   rmse_candidate, rmse_prod = results.values()  
   rmse_proportion = round((rmse_prod-rmse_candidate)/rmse_prod, 2)
   print(f'It. {iteration+1}: @step: {start_step} to {start_step+train_length}  evaluate: {start_step+train_length+1} to {start_step+ train_length+evaluate_length} RESULTS: {rmse_candidate} :: {rmse_prod} proportion: {rmse_proportion}')
@@ -33,7 +44,7 @@ for iteration, start_step in enumerate(range(0, 7000, 400)):
   if patience_status >= DEPLOY_PATIENCE:
     print('DEPLOYMENT')
     response = requests.get(url=deploy_url)
-    print(response)
-    break
+    meta.restart_container(name='production')
+    sleep(10)  
 
 print('done')
