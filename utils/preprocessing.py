@@ -27,7 +27,7 @@ def moving_average(x, steps):
     return convolve(x, ones(steps), 'valid') / steps
 
 
-def seq2inputs(sequence: array, time_step_to_predict: int = 1) -> Tuple:
+def seq2inputs(sequence: array, time_step_to_predict: int = 10) -> Tuple:
     X = sequence[:-1,:]
     y = sequence[:,time_step_to_predict][1:]
     print(f'Train shape of features: {X.shape} - Train shape of target: {y.shape}')

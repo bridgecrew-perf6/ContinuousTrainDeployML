@@ -112,8 +112,15 @@ def signals_case_generation(n_transition_steps: int = 500, verbose: bool = False
 
     coef = linspace(0, 1, n_transition_steps).astype(float)
     transition_signal = (s_mixed[-n_transition_steps:]*(1-coef) + s_production[:n_transition_steps]*coef)
-    concat_signal = concatenate((s_mixed[-5000:], transition_signal, s_production[n_transition_steps:]))
-    if verbose: 
-        print(f'Signal shape: {concat_signal.shape}')
+    steps_2nd_signal = 5000
+    ix = s_mixed.shape[0] - 5500
+    concat_signal = concatenate((s_mixed[ix:-n_transition_steps], transition_signal, s_production[n_transition_steps:n_transition_steps+steps_2nd_signal]))
 
-    return concat_signal
+    transition_signal_2 = (s_production[steps_2nd_signal+n_transition_steps:steps_2nd_signal+n_transition_steps*2]*(1-coef) + s_mixed[ix:ix+n_transition_steps]*coef)
+    concat_signal_full = concatenate((concat_signal, transition_signal_2, s_mixed[ix+n_transition_steps:]))
+
+    # if verbose: 
+    print(f'Signal 1 shape: {concat_signal.shape}')
+    print(f'Signal full shape: {concat_signal_full.shape}')
+
+    return concat_signal_full
