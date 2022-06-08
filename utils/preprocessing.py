@@ -78,7 +78,7 @@ def train_models(X_train: array, y_train: array, X_test: array, y_test: array) -
     data_arrays = [X_test,  y_test]
     candidate = load_model('models/candidate.h5')
     candidate.compile(Adam(learning_rate=0.0001),loss= MeanSquaredError(), metrics=['mse'])
-    candidate.fit(X_train, y_train, epochs=5, verbose=0)
+    candidate.fit(X_train, y_train, epochs=3, verbose=0)
     print(f'Training done', )
     candidate.save('models/candidate.h5')
 

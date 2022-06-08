@@ -1,5 +1,18 @@
+# import docker
+from docker import DockerClient
 from typing import Union
 from google.cloud.storage import Client
+from time import sleep
+
+
+def restart_container(name: str):
+    print(f'<<<<<<< RESTART {name.upper()} >>>>>>>')
+    client = DockerClient(base_url='unix://var/run/docker.sock')
+    # client = docker.DockerClient(base_url='tcp://127.0.0.1:2375', version='auto')
+    # client = docker.from_env()
+    prod_container = client.containers.get(name)
+    prod_container.restart()    
+
 
 def gcp_client():
     credentials = 'gcp_config/mlops-3-1ccb1337a897.json'
