@@ -9,7 +9,7 @@ from numpy import array
 from pathlib import Path
 from shutil import copyfileobj
 from fastapi import FastAPI, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from logging.config import dictConfig
 from log_config import log_config
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -21,23 +21,23 @@ logger = logging.getLogger("production")
 
 # TODO config file
 DATA_URL = 'http://data:5000/'
-METRIC_PORT = 9091
+METRIC_PORT = 9090
 bucket = 'project-capstone-fbf'
 model_path = 'models/production.h5'
 
 
 app = FastAPI()
 meta.download_blob(bucket, model_path, model_path)
-# TODO delete listdir -> to logging
-print(os.listdir('models'))
-track_predictions = Gauge('ProductionPredictions', 'Actual model predictions')
-track_actual_data = Gauge('ActualData', 'Actual data used for predictions')
+prod_model = load_model('models/production.h5')
+
+track_predictions = Gauge('Production_predictions', 'Actual model predictions')
+track_actual_data = Gauge('Actual_data', 'Actual data used for predictions')
 
 
 @app.get("/health")
 def health():
     logger.info("Prod: Health request received.")
-    return "Production Server is online."
+    return PlainTextResponse("Production Server is online")
 
 
 @app.get("/predict")
@@ -70,8 +70,7 @@ async def evaluate_model(data: UploadFile):
     with open(filepath, 'rb') as f:
         data_arrays = pickle.load(f)
         
-    prod_model = load_model('models/production.h5')
-    return JSONResponse({'rmse_prod': round(prod_model.evaluate(*data_arrays, verbose=0)[0],2)})
+    return JSONResponse({'mse_prod': round(prod_model.evaluate(*data_arrays, verbose=0)[0],2)})
 
 
 @app.on_event('startup')

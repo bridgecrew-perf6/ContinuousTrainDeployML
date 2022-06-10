@@ -1,8 +1,9 @@
 # import docker
 from docker import DockerClient
-from typing import Union
+from typing import Union, List
 from google.cloud.storage import Client
-from time import sleep
+from requests import get
+
 
 
 def restart_container(name: str):
@@ -12,6 +13,12 @@ def restart_container(name: str):
     # client = docker.from_env()
     prod_container = client.containers.get(name)
     prod_container.restart()    
+
+
+def check_server_health(server_urls: List):
+  for url in server_urls:
+    r = get(url=url)
+    print(r.content.decode('utf-8'))
 
 
 def gcp_client():

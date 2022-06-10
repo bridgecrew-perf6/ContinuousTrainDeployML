@@ -13,6 +13,7 @@ from tensorflow.keras.optimizers import Adam
 
 # TODO config file
 PROD_URL = 'http://prod:5000/'
+STATIC_PROD_URL = 'http://staticprod:5000/'
 
 
 def rolling_window(x, window):
@@ -86,17 +87,20 @@ def train_models(X_train: array, y_train: array, X_test: array, y_test: array) -
     print(f'Training done', )
     candidate.save('models/candidate.h5')
 
-    rmse_candidate = model_evaluation('candidate.h5', *data_arrays)
+    mse_candidate = model_evaluation('candidate.h5', *data_arrays)
     
     with open('data_arrays.pkl', 'wb') as f:
         pickle.dump(data_arrays, f)
 
     response = requests.post(PROD_URL+'evaluate',  files={'data': open('data_arrays.pkl',"rb")})
-
     response = response.json()
-    rmse_prod = response['rmse_prod']
+    mse_prod = response['mse_prod']
 
-    return rmse_candidate, rmse_prod
+    response = requests.post(STATIC_PROD_URL+'evaluate',  files={'data': open('data_arrays.pkl',"rb")})
+    response = response.json()
+    mse_static_prod = response['mse_static_prod']
+
+    return mse_candidate, mse_prod, mse_static_prod
 
 
 def model_evaluation(model_name: str, X_test: array, y_test: array, verbose=0) -> float:

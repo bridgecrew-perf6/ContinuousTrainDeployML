@@ -1,5 +1,6 @@
 import utils.simulation_utils as sim
 from fastapi import FastAPI, Form, Response
+from fastapi.responses import PlainTextResponse
 import logging
 from logging.config import dictConfig
 from log_config import log_config
@@ -12,10 +13,10 @@ app = FastAPI()
 signal = sim.signals_case_generation(n_transition_steps=500)
 
 
-@app.get("/health")
+@app.get("/health", response_class=PlainTextResponse)
 async def health_root():
-    logger.info("Data Simalutor: Health request received.")
-    return "Data Simalutor is online."
+    logger.info("Data Service: Health request received.")
+    return "Data service up and running"
 
 
 @app.get("/timesteps")

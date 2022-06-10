@@ -1,5 +1,5 @@
 from typing import Union, Tuple
-from numpy import linspace, concatenate, pi, cos, ndarray, array, sin, random, cumsum
+from numpy import linspace, concatenate, pi, cos, ndarray, array, sin, random, cumsum, repeat
 
 def generate_raw_signal(max_degrees: int, steps_ratio: Union[int, float]) -> Tuple:
 
@@ -112,6 +112,7 @@ def signals_case_generation(n_transition_steps: int = 500, verbose: bool = False
 
     coef = linspace(0, 1, n_transition_steps).astype(float)
     transition_signal = (s_mixed[-n_transition_steps:]*(1-coef) + s_production[:n_transition_steps]*coef)
+    
     steps_2nd_signal = 5000
     ix = s_mixed.shape[0] - 5500
     ix_final = s_mixed.shape[0] - n_transition_steps
@@ -121,7 +122,8 @@ def signals_case_generation(n_transition_steps: int = 500, verbose: bool = False
 
     transition_signal_2 = (s_production[steps_2nd_signal+n_transition_steps:steps_2nd_signal+n_transition_steps*2]*(1-coef) + s_mixed[ix:ix+n_transition_steps]*coef)
 
-    concat_signal_full = concatenate((concat_signal, transition_signal_2, s_mixed[ix+n_transition_steps:]))
+    s_mixed_2 = repeat(s_mixed[ix+n_transition_steps:], repeats=2)
+    concat_signal_full = concatenate((concat_signal, transition_signal_2, s_mixed_2 ))
 
     print(f'transition_2: {transition_signal_2.shape} | s_mixed: {s_mixed[ix+n_transition_steps:].shape}')
 

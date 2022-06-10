@@ -13,18 +13,24 @@ train_url = trainer_url + 'train'
 predict_url = trainer_url + 'predict'
 deploy_url = trainer_url + 'deploy-candidate'
 production_url = f'{server}:5000/'
+static_production_url = f'{server}:5002/'
+app_ports = list(range(5000,5004))
 
 train_length = 4000
 evaluate_length = 100
 n_rolling_window = 100
 
-iteration_step = 50
+iteration_step = 25
 
 DEPLOY_THRESHOLD = 2/3
 DEPLOY_PATIENCE = 3
 
 
 def main():
+
+  server_health_urls = [f'{server}:{port}/health' for port in app_ports]
+  meta.check_server_health(server_health_urls)
+
   patience_status = 0
   for start_step in range(0, 10000, iteration_step):
 
@@ -41,11 +47,14 @@ def main():
     pred_param = {'initial_step': start_step, 'n_timesteps': iteration_step+n_rolling_window}  
     r = requests.get(url=predict_url, params=pred_param)
 
-    rmse_candidate, rmse_prod = results.values()  
-    rmse_proportion = round((rmse_prod-rmse_candidate)/rmse_prod, 2)
-    print(f'train-step: {start_step} to {start_step+train_length}  evaluate: {start_step+train_length+1} to {start_step+ train_length+evaluate_length} RESULTS: {rmse_candidate} :: {rmse_prod} proportion: {rmse_proportion}')
+    mse_candidate, mse_prod, mse_static_prod = results.values()  
+    mse_proportion = round((mse_prod-mse_candidate)/mse_prod, 2)
+    if mse_prod > .5 and mse_proportion > DEPLOY_THRESHOLD:
+      print(f'train-step: {start_step} to {start_step+train_length}  evaluate: {start_step+train_length+1} to {start_step+ train_length+evaluate_length} RESULTS: {mse_candidate} :: {mse_prod} :: {mse_static_prod} proportion: {mse_proportion}')
+    else:
+      print(f'train-step: {start_step} to {start_step+train_length}  evaluate: {start_step+train_length+1} to {start_step+ train_length+evaluate_length} RESULTS: {mse_candidate} :: {mse_prod} :: {mse_static_prod}')
 
-    if rmse_prod > 1 and rmse_proportion > DEPLOY_THRESHOLD:
+    if mse_prod > .5 and mse_proportion > DEPLOY_THRESHOLD:
       patience_status +=1
     else:
       patience_status = 0

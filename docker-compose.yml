@@ -4,7 +4,7 @@ services:
     build: ./prod-api/
     ports:
       - "5000:5000"
-      - "9091:9091"
+      - "9091:9090"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     container_name: production
@@ -23,3 +23,11 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     container_name: data
+  staticprod:
+    build: ./staticprod-api/
+    ports:
+      - "5003:5000"
+      - "9092:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    container_name: static-production

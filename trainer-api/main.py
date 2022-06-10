@@ -1,14 +1,13 @@
 import logging
-from requests import get, post
 import utils.preprocessing as prep
 import utils.metadata as meta
 import time
 import os 
+from requests import get
 from typing import Tuple
-from prometheus_client import Gauge, start_http_server
-from json import dumps as json_dumps
+from prometheus_client import Gauge, start_http_server, Counter
 from fastapi import FastAPI, Form
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from logging.config import dictConfig
 from log_config import log_config
 
@@ -19,6 +18,7 @@ logger = logging.getLogger("Trainer")
 # TODO config file
 DATA_URL = 'http://data:5000/'
 PROD_URL = 'http://prod:5000/'
+STATIC_PROD_URL = 'http://staticprod:5000/'
 BUCKET = 'project-capstone-fbf'
 MODEL_FOLDER = 'models/'
 MODEL_STEMMED = 'production'
@@ -32,12 +32,14 @@ meta.download_blob(BUCKET, GCP_MODEL_PATH, LOCAL_MODEL_PATH)
 # TODO DELETE listdir() -> logging
 print(os.listdir('models'))
 
-track_mse_prod = Gauge('mse_prod', 'MSE on production model evaluation')
-track_mse_candidate = Gauge('mse_candidate', 'MSE on candidate model evaluation')
-track_predictions = Gauge('CandidatePredictions', 'Candidate Model Predictions')
+track_mse_prod = Gauge('MSE_Production', 'MSE on production model evaluation')
+track_mse_candidate = Gauge('MSE_Candidate', 'MSE on candidate model evaluation')
+track_mse_static_prod = Gauge('MSE_Static_Production', 'MSE on candidate model evaluation')
+track_predictions = Gauge('Candidate_predictions', 'Candidate Model Predictions')
+track_deployments = Counter('Deployments', 'Depyloyments count')
 
 
-@app.get("/health")
+@app.get("/health", response_class=PlainTextResponse)
 async def health_root():
     logger.info("Trainer: Health request received.")
     return "Trainer is online."
@@ -61,11 +63,14 @@ async def train(initial_step: int, n_timesteps: int):
 
 @track_mse_candidate.track_inprogress()
 @track_mse_prod.track_inprogress()
+@track_mse_static_prod.track_inprogress()
 def make_train_response(metrics: Tuple):
-    mse_candidate, mse_prod = metrics    
+    mse_candidate, mse_prod, mse_static_prod = metrics    
     track_mse_candidate.set(mse_candidate)
     track_mse_prod.set(mse_prod)
-    return JSONResponse({'rmse_candidate': mse_candidate, 'rmse_prod': mse_prod})
+    track_mse_static_prod.set(mse_static_prod)
+
+    return JSONResponse({'mse_candidate': mse_candidate, 'mse_prod': mse_prod, 'mse_static_prod': mse_static_prod})
 
 
 @app.get("/predict")
@@ -76,7 +81,8 @@ def model_prediction(initial_step: int, n_timesteps: int, do_production_predicti
     response = make_prediction_response(preds)
     if do_production_prediction:
         params = {'initial_step': initial_step, 'n_timesteps': n_timesteps}
-        r = get(url=PROD_URL+'predict', params=params)
+        _ = get(url=PROD_URL+'predict', params=params)
+        _ = get(url=STATIC_PROD_URL+'predict', params=params)
     return response
 
 
@@ -96,8 +102,14 @@ async def deploy():
     print(f'BUCKET: {BUCKET} - GCP_MODEL_PATH: {GCP_MODEL_PATH} - new_model_name: {new_model_name}')    
     meta.move_blob(BUCKET, GCP_MODEL_PATH, new_model_name)        
     meta.upload_blob(BUCKET, LOCAL_MODEL_PATH, GCP_MODEL_PATH)
-    return f'Deployed to {GCP_MODEL_PATH}'
+    make_deploy_response()
+    return PlainTextResponse(f'Deployed to {GCP_MODEL_PATH}')
 
+
+@track_deployments.count_exceptions()
+def make_deploy_response():
+    track_deployments.inc()
+    
 
 @app.on_event('startup')
 def startup_events():
