@@ -66,6 +66,7 @@ async def train(initial_step: int, n_timesteps: int):
 @track_mse_static_prod.track_inprogress()
 def make_train_response(metrics: Tuple):
     mse_candidate, mse_prod, mse_static_prod = metrics    
+    print(f'{mse_candidate} :: {mse_prod} :: {mse_static_prod}')
     track_mse_candidate.set(mse_candidate)
     track_mse_prod.set(mse_prod)
     track_mse_static_prod.set(mse_static_prod)

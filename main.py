@@ -20,7 +20,7 @@ train_length = 4000
 evaluate_length = 100
 n_rolling_window = 100
 
-iteration_step = 25
+iteration_step = 50
 
 DEPLOY_THRESHOLD = 2/3
 DEPLOY_PATIENCE = 3
@@ -49,6 +49,7 @@ def main():
 
     mse_candidate, mse_prod, mse_static_prod = results.values()  
     mse_proportion = round((mse_prod-mse_candidate)/mse_prod, 2)
+
     if mse_prod > .5 and mse_proportion > DEPLOY_THRESHOLD:
       print(f'train-step: {start_step} to {start_step+train_length}  evaluate: {start_step+train_length+1} to {start_step+ train_length+evaluate_length} RESULTS: {mse_candidate} :: {mse_prod} :: {mse_static_prod} proportion: {mse_proportion}')
     else:

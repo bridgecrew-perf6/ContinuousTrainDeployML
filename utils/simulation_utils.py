@@ -118,17 +118,19 @@ def signals_case_generation(n_transition_steps: int = 500, verbose: bool = False
     ix_final = s_mixed.shape[0] - n_transition_steps
     concat_signal = concatenate((s_mixed[ix:ix_final], transition_signal, s_production[n_transition_steps:n_transition_steps+steps_2nd_signal]))
 
-    print(f's_mixed: {s_mixed[ix:ix_final].shape} | transition_signal: {transition_signal.shape} | s_production: {s_production[n_transition_steps:n_transition_steps+steps_2nd_signal].shape} | concat: {concat_signal.shape}')
+    if verbose:
+      print(f's_mixed: {s_mixed[ix:ix_final].shape} | transition_signal: {transition_signal.shape} | s_production: {s_production[n_transition_steps:n_transition_steps+steps_2nd_signal].shape} | concat: {concat_signal.shape}')
 
     transition_signal_2 = (s_production[steps_2nd_signal+n_transition_steps:steps_2nd_signal+n_transition_steps*2]*(1-coef) + s_mixed[ix:ix+n_transition_steps]*coef)
 
     s_mixed_2 = repeat(s_mixed[ix+n_transition_steps:], repeats=2)
     concat_signal_full = concatenate((concat_signal, transition_signal_2, s_mixed_2 ))
 
-    print(f'transition_2: {transition_signal_2.shape} | s_mixed: {s_mixed[ix+n_transition_steps:].shape}')
+    if verbose:
+      print(f'transition_2: {transition_signal_2.shape} | s_mixed: {s_mixed[ix+n_transition_steps:].shape}')
 
-    # if verbose: 
-    print(f'Signal 1 shape: {concat_signal.shape}')
-    print(f'Signal full shape: {concat_signal_full.shape}')
+    if verbose: 
+      print(f'Signal 1 shape: {concat_signal.shape}')
+      print(f'Signal full shape: {concat_signal_full.shape}')
 
     return concat_signal_full
