@@ -4,6 +4,7 @@ services:
     build: ./prod-api/
     ports:
       - "5000:5000"
+      - "9091:9091"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     container_name: production
