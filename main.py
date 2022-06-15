@@ -32,14 +32,18 @@ def main():
   meta.check_server_health(server_health_urls)
 
   patience_status = 0
-  for start_step in range(0, 10000, iteration_step):
 
-    prod_health = requests.get(production_url+'health')
+  for start_step in range(0, 13000, iteration_step):
+
+
+    # check if production is up
+    prod_health = requests.get(production_url+'health')    
     if prod_health.status_code != 200:
       print('Production server down')
-      sleep(10)
+      sleep(5)
       continue
 
+    # make requests to services
     step_param = {'initial_step': start_step, 'n_timesteps': train_length + evaluate_length + n_rolling_window}  
     response = requests.get(url=train_url , params=step_param)
     results = response.json() if response and response.status_code == 200 else None
@@ -47,14 +51,17 @@ def main():
     pred_param = {'initial_step': start_step, 'n_timesteps': iteration_step+n_rolling_window}  
     r = requests.get(url=predict_url, params=pred_param)
 
+    # compute metrics
     mse_candidate, mse_prod, mse_static_prod = results.values()  
     mse_proportion = round((mse_prod-mse_candidate)/mse_prod, 2)
 
+    # rules check for printing
     if mse_prod > .5 and mse_proportion > DEPLOY_THRESHOLD:
       print(f'train-step: {start_step} to {start_step+train_length}  evaluate: {start_step+train_length+1} to {start_step+ train_length+evaluate_length} RESULTS: {mse_candidate} :: {mse_prod} :: {mse_static_prod} proportion: {mse_proportion}')
     else:
       print(f'train-step: {start_step} to {start_step+train_length}  evaluate: {start_step+train_length+1} to {start_step+ train_length+evaluate_length} RESULTS: {mse_candidate} :: {mse_prod} :: {mse_static_prod}')
 
+    # rules check for deploying
     if mse_prod > .5 and mse_proportion > DEPLOY_THRESHOLD:
       patience_status +=1
     else:
@@ -64,7 +71,7 @@ def main():
       print('DEPLOYMENT')
       response = requests.get(url=deploy_url)
       meta.restart_container(name='production')
-      sleep(10)  
+      sleep(5)  
 
 if __name__ == "__main__":
 

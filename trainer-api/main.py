@@ -75,15 +75,15 @@ def make_train_response(metrics: Tuple):
 
 
 @app.get("/predict")
-def model_prediction(initial_step: int, n_timesteps: int, do_production_prediction: bool = True):
+async def model_prediction(initial_step: int, n_timesteps: int, do_production_prediction: bool = True):
     data = prep.get_data(initial_step, data_url=DATA_URL, n_timesteps=n_timesteps)
     x_train, *_ = prep.trainable_data(data, split=False)
     preds = prep.model_prediction(x_train)
-    response = make_prediction_response(preds)
     if do_production_prediction:
         params = {'initial_step': initial_step, 'n_timesteps': n_timesteps}
         _ = get(url=PROD_URL+'predict', params=params)
         _ = get(url=STATIC_PROD_URL+'predict', params=params)
+        response = make_prediction_response(preds)
     return response
 
 
