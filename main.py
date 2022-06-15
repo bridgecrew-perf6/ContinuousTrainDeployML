@@ -33,7 +33,7 @@ def main():
 
   patience_status = 0
 
-  for start_step in range(0, 13000, iteration_step):
+  for start_step in range(0, 12000, iteration_step):
 
 
     # check if production is up
