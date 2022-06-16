@@ -13,7 +13,6 @@ pip install  -r requirements.txt
 
 ```shell
 sh docker-compose-build.sh
-docker run --rm -it -p 5000:5000 -e MAX_WORKERS=1 key-info-extraction
 ```
 
 ## Start the system
