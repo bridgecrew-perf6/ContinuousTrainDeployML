@@ -24,6 +24,7 @@ iteration_step = 50
 
 DEPLOY_THRESHOLD = 2/3
 DEPLOY_PATIENCE = 3
+MSE_PRODUCTION_THRESH = 0.5
 
 
 def main():
@@ -55,14 +56,14 @@ def main():
     mse_candidate, mse_prod, mse_static_prod = results.values()  
     mse_proportion = round((mse_prod-mse_candidate)/mse_prod, 2)
 
-    # rules check for printing
-    if mse_prod > .5 and mse_proportion > DEPLOY_THRESHOLD:
+    # rules check for printing more or less
+    if mse_prod > MSE_PRODUCTION_THRESH and mse_proportion > DEPLOY_THRESHOLD:
       print(f'train-step: {start_step} to {start_step+train_length}  evaluate: {start_step+train_length+1} to {start_step+ train_length+evaluate_length} RESULTS: {mse_candidate} :: {mse_prod} :: {mse_static_prod} proportion: {mse_proportion}')
     else:
       print(f'train-step: {start_step} to {start_step+train_length}  evaluate: {start_step+train_length+1} to {start_step+ train_length+evaluate_length} RESULTS: {mse_candidate} :: {mse_prod} :: {mse_static_prod}')
 
     # rules check for deploying
-    if mse_prod > .5 and mse_proportion > DEPLOY_THRESHOLD:
+    if mse_prod > MSE_PRODUCTION_THRESH and mse_proportion > DEPLOY_THRESHOLD:
       patience_status +=1
     else:
       patience_status = 0
