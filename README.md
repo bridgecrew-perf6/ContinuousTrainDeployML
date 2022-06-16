@@ -22,7 +22,9 @@ docker compose up
 ```
 
 ## Credentials
-```shell
+
 The system requires credentials to GCP in the project mlops-3. 
-The credentials have to be located in 'src/gcp_config/mlops-3-1ccb1337a897.json'
+The credentials have to be located in 
+```shell
+'src/gcp_config/mlops-3-1ccb1337a897.json'
 ```
