@@ -5,6 +5,7 @@ This repo contains the structure of a continuous training and deployment machine
 ## Installation with conda
 ```
 conda create -n continuous
+conda activate continuous
 conda install pip
 pip install  -r requirements.txt
 ```
