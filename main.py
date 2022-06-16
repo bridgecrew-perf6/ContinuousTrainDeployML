@@ -15,12 +15,12 @@ deploy_url = trainer_url + 'deploy-candidate'
 production_url = f'{server}:5000/'
 static_production_url = f'{server}:5002/'
 app_ports = list(range(5000,5004))
+n_rolling_window = 100
+
 
 train_length = 4000
 evaluate_length = 100
-n_rolling_window = 100
-
-iteration_step = 50
+iteration_step = 100
 
 DEPLOY_THRESHOLD = 2/3
 DEPLOY_PATIENCE = 3
