@@ -5,9 +5,9 @@ from time import sleep
 from json import loads as json_loads
 
 
+# parameters TODO config file
 server = 'http://localhost'
 # server = 'http://34.150.196.128'
-
 trainer_url = f'{server}:5001/' 
 train_url = trainer_url + 'train'
 predict_url = trainer_url + 'predict'
@@ -17,7 +17,7 @@ static_production_url = f'{server}:5002/'
 app_ports = list(range(5000,5004))
 n_rolling_window = 100
 
-
+# training configuration TODO config file
 train_length = 4000
 evaluate_length = 100
 iteration_step = 100
@@ -25,7 +25,6 @@ iteration_step = 100
 DEPLOY_THRESHOLD = 2/3
 DEPLOY_PATIENCE = 3
 MSE_PRODUCTION_THRESH = 0.5
-
 
 def main():
 
@@ -35,7 +34,6 @@ def main():
   patience_status = 0
 
   for start_step in range(0, 12000, iteration_step):
-
 
     # check if production is up
     prod_health = requests.get(production_url+'health')    
@@ -77,4 +75,4 @@ def main():
 if __name__ == "__main__":
 
   main()
-  print('done')
+  
